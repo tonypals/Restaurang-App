@@ -1,21 +1,17 @@
 import os
 from flask import Flask, render_template, jsonify, request
-from dotenv import load_dotenv
-from supabase import create_client, Client 
-from datetime import datetime  # Denna saknades för menyn!
+from supabase import create_client, Client
+from datetime import datetime
 
-# 1. Ladda miljövariabler och initiera Supabase direkt
-load_dotenv()
-url: str = os.environ.get("SUPABASE_URL")
-key: str = os.environ.get("SUPABASE_KEY")
-supabase: Client = create_client(url, key)
+# 1. Setup - Gör detta så enkelt som möjligt
+app = Flask(__name__, 
+            template_folder='../templates', 
+            static_folder='../static')
 
-# 2. Definiera mappar korrekt för Vercel
-template_dir = os.path.join(os.path.dirname(__file__), '../templates')
-static_dir = os.path.join(os.path.dirname(__file__), '../static')
-
-# 3. Skapa Flask-appen EN gång
-app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
+# Hämta miljövariabler direkt
+url = os.environ.get("SUPABASE_URL")
+key = os.environ.get("SUPABASE_KEY")
+supabase = create_client(url, key)
 
 @app.route('/')
 def home():
@@ -28,19 +24,9 @@ def admin_page():
 @app.route('/api/tasks')
 def get_tasks():
     try:
-        # Vi behåller 'tasks' som du ville
+        # Hämta data från din tabell 'tasks'
         response = supabase.table('tasks').select("*").execute()
         return jsonify(response.data)
-    except Exception as e:
-        print(f"FEL VID HÄMTNING: {e}")
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/api/toggle_task', methods=['POST'])
-def toggle_task():
-    try:
-        data = request.json
-        supabase.table('tasks').update({"is_completed": data['is_completed']}).eq("task_id", data['task_id']).execute()
-        return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -65,5 +51,5 @@ def get_menu():
         'dish': vecko_meny.get(idag_engelska, "Se menyn på plats")
     })
 
-# Viktigt för Vercel
+# Denna rad är kritisk för Vercel
 app = app
