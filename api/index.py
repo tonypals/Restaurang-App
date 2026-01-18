@@ -3,15 +3,10 @@ from flask import Flask, render_template, jsonify, request
 from supabase import create_client, Client
 from datetime import datetime
 
-# 1. Setup - Gör detta så enkelt som möjligt
+# 1. Setup - Vi skapar bara appen här
 app = Flask(__name__, 
             template_folder='../templates', 
             static_folder='../static')
-
-# Hämta miljövariabler direkt
-url = os.environ.get("SUPABASE_URL")
-key = os.environ.get("SUPABASE_KEY")
-supabase = create_client(url, key)
 
 @app.route('/')
 def home():
@@ -24,8 +19,14 @@ def admin_page():
 @app.route('/api/tasks')
 def get_tasks():
     try:
-        # Hämta data från din tabell 'tasks'
-        response = supabase.table('tasks').select("*").execute()
+        # Vi hämtar URL och KEY exakt när de behövs
+        url = os.environ.get("SUPABASE_URL")
+        key = os.environ.get("SUPABASE_KEY")
+        
+        # Skapa klienten lokalt inuti funktionen
+        supabase_client = create_client(url, key)
+        
+        response = supabase_client.table('tasks').select("*").execute()
         return jsonify(response.data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -51,3 +52,4 @@ def get_menu():
         'dish': vecko_meny.get(idag_engelska, "Se menyn på plats")
     })
 
+# Ingen "app = app" och ingen global "supabase" variabel här nere
