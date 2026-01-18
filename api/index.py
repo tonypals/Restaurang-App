@@ -1,7 +1,8 @@
 import os
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify
 from supabase import create_client
 
+# Definiera appen
 app = Flask(__name__, 
             template_folder='../templates', 
             static_folder='../static')
@@ -13,14 +14,15 @@ def home():
 @app.route('/api/tasks')
 def get_tasks():
     try:
-        # Skapa klienten direkt i anropet
-        supabase = create_client(
-            os.environ.get("SUPABASE_URL"), 
-            os.environ.get("SUPABASE_KEY")
-        )
+        # Skapa klienten lokalt inuti funktionen
+        url = os.environ.get("SUPABASE_URL")
+        key = os.environ.get("SUPABASE_KEY")
+        supabase = create_client(url, key)
+        
         response = supabase.table('tasks').select("*").execute()
         return jsonify(response.data)
     except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/menu')
 def get_menu():
@@ -44,3 +46,4 @@ def get_menu():
     })
 
 # Ingen "app = app" och ingen global "supabase" variabel här nere
+app = app
