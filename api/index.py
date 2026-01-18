@@ -51,5 +51,3 @@ def get_menu():
         'dish': vecko_meny.get(idag_engelska, "Se menyn på plats")
     })
 
-# Denna rad är kritisk för Vercel
-app = app
