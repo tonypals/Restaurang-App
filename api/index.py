@@ -26,6 +26,8 @@ def get_tasks():
         return jsonify(response.data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+    #
 
 @app.route('/api/menu')
 def get_menu():
@@ -44,3 +46,4 @@ def get_menu():
     })
 
 app = app
+
