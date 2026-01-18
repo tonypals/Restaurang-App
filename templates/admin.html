@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Potatisen - Admin</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #1e3c72; color: #333; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+        h1 { color: #1e3c72; margin-top: 0; }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input, select, textarea { 
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; 
+            box-sizing: border-box; font-size: 16px;
+        }
+        
+        .btn-save { 
+            background: #4caf50; color: white; border: none; padding: 15px; 
+            width: 100%; border-radius: 8px; font-size: 18px; font-weight: bold; 
+            cursor: pointer; transition: 0.2s; margin-top: 10px;
+        }
+        .btn-save:hover { background: #43a047; transform: translateY(-2px); }
+        
+        .back-link { display: inline-block; margin-bottom: 20px; color: white; text-decoration: none; }
+        .status-msg { margin-top: 15px; padding: 10px; border-radius: 8px; display: none; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Tillbaka till översikten</a>
+        
+        <div class="card">
+            <h1>Lägg till ny uppgift</h1>
+            <p>Fyll i formuläret för att skicka en ny syssla till personalen.</p>
+            
+            <form id="taskForm">
+                <div class="form-group">
+                    <label>Uppgift (t.ex. Förbered salladsbuffé)</label>
+                    <input type="text" id="title" required placeholder="Vad ska göras?">
+                </div>
+
+                <div class="form-group">
+                    <label>Vem är ansvarig? (Namn)</label>
+                    <input type="text" id="assignee" required placeholder="T.ex. Anna">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Roll</label>
+                        <select id="role">
+                            <option value="kock">👨‍🍳 Kock</option>
+                            <option value="servitor">🍷 Servitör</option>
+                            <option value="diskare">🧽 Diskare</option>
+                            <option value="admin">🛡️ Admin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tidpunkt</label>
+                        <input type="time" id="time" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Pass/Period</label>
+                    <select id="period">
+                        <option value="morning">Morgon (07-10)</option>
+                        <option value="lunch">Lunch (10-14)</option>
+                        <option value="afternoon">Eftermiddag (14-18)</option>
+                        <option value="evening">Kväll (18-22)</option>
+                        <option value="closing">Stängning (22-01)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Kategori</label>
+                    <select id="category">
+                        <option value="prep">Förberedelse (Prep)</option>
+                        <option value="hygien">Hygien & Städ</option>
+                        <option value="gäst">Gästfokus</option>
+                        <option value="säkerhet">Säkerhet</option>
+                        <option value="drift">Drift</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-save">Publicera uppgift</button>
+            </form>
+            <div id="status" class="status-msg"></div>
+        </div>
+    </div>
+
+    <script>
+        // Här kommer vi senare lägga JavaScriptet som pratar med Flask/Supabase
+        document.getElementById('taskForm').onsubmit = function(e) {
+            e.preventDefault();
+            const status = document.getElementById('status');
+            status.style.display = 'block';
+            status.style.backgroundColor = '#e3f2fd';
+            status.innerText = 'Skickar till databasen... (Koppling kommer i nästa steg)';
+            
+            // Logik för att skicka data kommer härnäst!
+        };
+    </script>
+</body>
+</html>

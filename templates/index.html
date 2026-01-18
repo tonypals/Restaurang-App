@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Potatisen Aktiviteter</title>
+    
+    <style>
+        /* All din snygga styling behålls exakt som tidigare */
+        body { font-family: 'Segoe UI', sans-serif; background-color: #2a5298; color: #333; padding: 20px; line-height: 1.4; margin: 0; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 8px 30px rgba(0,0,0,0.2); margin-bottom: 20px; }
+        .header-card h1 { color: #1e3c72; font-size: 28px; margin: 0; }
+        .time-display-row { display: flex; justify-content: space-between; align-items: center; background: #f0f4f8; padding: 15px; border-radius: 12px; margin-top: 15px; }
+        .main-clock { font-size: 36px; font-weight: bold; color: #1e3c72; }
+        .period-badge { background: #e3f2fd; color: #1e88e5; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 14px; }
+        .special-box { background: #fffde7; border-left: 10px solid #fbc02d; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .special-box h3 { margin: 0 0 10px 0; color: #f57f17; font-size: 18px; }
+        .special-text { color: #d32f2f; font-weight: bold; font-size: 22px; margin: 0; }
+        .demo-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .demo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+        .demo-grid button { padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: white; cursor: pointer; font-size: 13px; transition: 0.2s; }
+        .demo-grid button:hover { background: #f5f5f5; }
+        .reset-btn { background: #e3f2fd !important; color: #1e88e5; font-weight: bold; }
+        .role-container { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; }
+        .role-btn { flex: 1; min-width: 110px; padding: 15px; border: none; border-radius: 12px; background: white; font-weight: bold; color: #1e3c72; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.2s; font-size: 14px; }
+        .role-btn.active { background: #667eea; color: white; }
+        .checklist-card { background: white; }
+        .checklist-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .checklist-header h2 { margin: 0; color: #1e3c72; font-size: 24px; }
+        .time-range { color: #666; font-size: 14px; background: #f0f4f8; padding: 6px 12px; border-radius: 8px; }
+        .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); background: #f8f9fa; padding: 15px; border-radius: 12px; margin: 15px 0; text-align: center; gap: 10px; }
+        .stat-item span { display: block; font-size: 24px; font-weight: bold; color: #1e3c72; }
+        .stat-item label { font-size: 12px; color: #777; text-transform: uppercase; margin-top: 5px; display: block; }
+        .task-list { max-height: 600px; overflow-y: auto; }
+        .task-item { display: flex; align-items: center; padding: 18px; background: #fcfcfc; border-radius: 12px; margin-bottom: 12px; border: 1px solid #eee; border-left: 6px solid #ddd; transition: 0.2s; }
+        .task-item.completed { opacity: 0.6; background: #f1f8e9; border-left-color: #4caf50; }
+        .task-item input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; flex-shrink: 0; }
+        .task-info { margin-left: 15px; flex: 1; }
+        .task-meta { display: flex; gap: 15px; font-size: 13px; color: #666; margin-top: 4px; flex-wrap: wrap; }
+        
+        /* Kategori-färger */
+        .cat-hygien { border-left-color: #4caf50 !important; }
+        .cat-sakerhet { border-left-color: #f44336 !important; }
+        .cat-prep { border-left-color: #2196f3 !important; }
+        .cat-gast { border-left-color: #ff9800 !important; }
+        .cat-ekonomi { border-left-color: #9c27b0 !important; }
+        .cat-drift { border-left-color: #607d8b !important; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card header-card">
+            <h1>🍽️ Potatisen Aktiviteter</h1>
+            <div class="time-display-row">
+                <div id="clockDisplay" class="main-clock">00:00</div>
+                <div id="periodTag" class="period-badge">Laddar...</div>
+            </div>
+        </div>
+
+        <div class="special-box">
+            <h3 id="todayTitle">Dagens Special</h3>
+            <p id="specialFood" class="special-text">Laddar meny...</p>
+        </div>
+
+        <div class="demo-card">
+            <span>🕒 <strong>Välj pass (Demo)</strong></span>
+            <div class="demo-grid">
+                <button onclick="setDemoTime(7,30)">07:30</button>
+                <button onclick="setDemoTime(12,0)">12:00</button>
+                <button onclick="setDemoTime(15,30)">15:30</button>
+                <button onclick="setDemoTime(19,0)">19:00</button>
+                <button onclick="setDemoTime(22,45)">22:45</button>
+                <button onclick="resetTime()" class="reset-btn">🔄 Riktig tid</button>
+            </div>
+        </div>
+
+        <div class="role-container">
+            <button class="role-btn active" id="btn-all" onclick="setRole('all')">👥 Alla</button>
+            <button class="role-btn" id="btn-kock" onclick="setRole('kock')">👨‍🍳 Kock</button>
+            <button class="role-btn" id="btn-servitor" onclick="setRole('servitor')">🍷 Servitör</button>
+            <button class="role-btn" id="btn-diskare" onclick="setRole('diskare')">🧽 Diskare</button>
+            <button class="role-btn" id="btn-admin" onclick="setRole('admin')">🛡️ Admin</button>
+        </div>
+
+        <div class="card checklist-card">
+            <div class="checklist-header">
+                <h2 id="listHeading">Uppgifter</h2>
+                <span id="timeRange" class="time-range"></span>
+            </div>
+            
+            <div class="stats-bar">
+                <div class="stat-item"><span id="countDone">0</span><label>Klara</label></div>
+                <div class="stat-item"><span id="countTotal">0</span><label>Totalt</label></div>
+                <div class="stat-item"><span id="percentDone">0%</span><label>Status</label></div>
+            </div>
+
+            <div id="taskList" class="task-list">
+                <p style="text-align:center; padding:20px;">Hämtar uppgifter från databasen...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== GLOBALA VARIABLER =====
+        let allTasks = [];
+        let currentRole = 'all';
+        let demoHour = null;
+        let demoMin = null;
+
+        const meny = {
+            "Monday": "Pannbiff med gräddsås", "Tuesday": "Raggmunk med fläsk", "Wednesday": "Chili con Carne",
+            "Thursday": "Köttbullar", "Friday": "Kålpudding", "Saturday": "Grillbuffé", "Sunday": "Söndagsstek"
+        };
+
+        const periodConfig = {
+            morning: { label: '🌅 Morgonprep', range: '07:00 - 10:00' },
+            lunch: { label: '🍲 Lunchrusning', range: '10:00 - 14:00' },
+            afternoon: { label: '☀️ Eftermiddag', range: '14:00 - 18:00' },
+            evening: { label: '🌆 Kväll', range: '18:00 - 22:00' },
+            closing: { label: '🌙 Stängning', range: '22:00 - 01:00' }
+        };
+
+        // ===== HÄMTA DATA FRÅN FLASK API =====
+        async function fetchTasks() {
+            try {
+                const response = await fetch('/api/tasks');
+                allTasks = await response.json();
+                updateUI();
+            } catch (err) {
+                console.error("Kunde inte hämta uppgifter:", err);
+            }
+        }
+
+        // ===== UPPDATERA STATUS (CHECKBOX) =====
+        async function toggleTask(taskId, isCompleted) {
+            try {
+                // Skicka uppdatering till Python
+                await fetch('/api/toggle_task', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ task_id: taskId, is_completed: isCompleted })
+                });
+                
+                // Uppdatera lokala listan direkt för snabbhet
+                const task = allTasks.find(t => t.task_id === taskId);
+                if (task) task.is_completed = isCompleted;
+                updateUI();
+            } catch (err) {
+                console.error("Kunde inte uppdatera status:", err);
+            }
+        }
+
+        function updateUI() {
+            const now = new Date();
+            const daysEng = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const daysSwe = ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'];
+            
+            // Uppdatera meny och klocka
+            document.getElementById('todayTitle').innerText = `Dagens Special - ${daysSwe[now.getDay()]}`;
+            document.getElementById('specialFood').innerText = meny[daysEng[now.getDay()]];
+            
+            const h = demoHour !== null ? demoHour : now.getHours();
+            const m = demoMin !== null ? demoMin : now.getMinutes();
+            document.getElementById('clockDisplay').innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+
+            // Bestäm period baserat på tid
+            let pKey = 'afternoon';
+            if(h >= 6 && h < 10) pKey = 'morning';
+            else if(h >= 10 && h < 14) pKey = 'lunch';
+            else if(h >= 14 && h < 18) pKey = 'afternoon';
+            else if(h >= 18 && h < 22) pKey = 'evening';
+            else pKey = 'closing';
+
+            const pInfo = periodConfig[pKey];
+            document.getElementById('periodTag').innerText = pInfo.label;
+            document.getElementById('listHeading').innerText = pInfo.label;
+            document.getElementById('timeRange').innerText = pInfo.range;
+
+            // Filtrera och rendera uppgifter
+            const filtered = allTasks.filter(t => t.period === pKey && (currentRole === 'all' || t.role === currentRole));
+            filtered.sort((a, b) => a.time.localeCompare(b.time));
+
+            const container = document.getElementById('taskList');
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="text-align:center; padding:20px; color:#666;">Inga uppgifter för vald roll i denna period.</p>';
+            } else {
+                container.innerHTML = filtered.map(t => `
+                    <div class="task-item ${t.is_completed ? 'completed' : ''} cat-${t.category.replace(/ä/g, 'a')}" id="task-${t.task_id}">
+                        <input type="checkbox" ${t.is_completed ? 'checked' : ''} onchange="toggleTask('${t.task_id}', this.checked)">
+                        <div class="task-info">
+                            <div style="font-weight:bold; font-size:16px;">${t.title}</div>
+                            <div class="task-meta">
+                                <span>⏰ ${t.time}</span>
+                                <span>👤 ${t.assignee}</span>
+                                <span style="text-transform: capitalize;">📍 ${t.role}</span>
+                                ${t.priority === 'high' ? '<span style="color:#f44336; font-weight:bold;">⚠️ Bråttom</span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Uppdatera statistik
+            const doneCount = filtered.filter(t => t.is_completed).length;
+            document.getElementById('countDone').innerText = doneCount;
+            document.getElementById('countTotal').innerText = filtered.length;
+            document.getElementById('percentDone').innerText = filtered.length > 0 ? Math.round((doneCount/filtered.length)*100)+'%' : '0%';
+        }
+
+        // --- Hjälpfunktioner ---
+        function setRole(r) {
+            currentRole = r;
+            document.querySelectorAll('.role-btn').forEach(b => b.classList.toggle('active', b.id === 'btn-'+r));
+            updateUI();
+        }
+        function setDemoTime(h, m) { demoHour = h; demoMin = m; updateUI(); }
+        function resetTime() { demoHour = null; demoMin = null; updateUI(); }
+
+        // Starta appen
+        fetchTasks();
+        setInterval(fetchTasks, 15000); // Auto-uppdatera var 15:e sekund
+    </script>
+
+    <footer style="margin-top: 40px; text-align: center; padding: 20px; opacity: 0.7;">
+        <a href="{{ url_for('admin_page') }}" style="color: white; text-decoration: none; font-size: 14px; border: 1px solid rgba(255,255,255,0.3); padding: 8px 15px; border-radius: 20px;">⚙️ Administration</a>
+    </footer>
+</body>
+</html>
