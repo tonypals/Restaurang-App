@@ -7,7 +7,7 @@ from supabase import create_client, Client
 # Detta hjälper Flask att hitta rätt mapp på Vercel
 app = Flask(__name__, 
             template_folder='../templates', 
-            static_folder='../Static')
+            static_folder='../static')
 
 # Ladda .env-filen
 load_dotenv()
