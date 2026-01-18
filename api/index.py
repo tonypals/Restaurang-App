@@ -9,12 +9,10 @@ app = Flask(__name__,
 
 @app.route('/')
 def home():
-    # Denna matchar url_for('home')
     return render_template('index.html')
 
 @app.route('/admin')
 def admin_page():
-    # VIKTIGT: Denna måste heta 'admin_page' för att matcha din HTML!
     return render_template('admin.html')
 
 @app.route('/api/tasks')
@@ -22,6 +20,7 @@ def get_tasks():
     try:
         url = os.environ.get("SUPABASE_URL")
         key = os.environ.get("SUPABASE_KEY")
+        # Vi skapar klienten inuti anropet för att inte låsa resurser
         supabase = create_client(url, key)
         response = supabase.table('tasks').select("*").execute()
         return jsonify(response.data)
